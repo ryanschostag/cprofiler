@@ -3,7 +3,7 @@ Command line utility and class module to run single file or files in batch throu
 
         cprofiler.py
 
-        Extract performance data from functions in a Python scripts. Does not work on modules alone
+        Extract performance data from functions in a Python scripts.
 
         Note that invalid arguments are ignored.
 
