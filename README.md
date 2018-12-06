@@ -1,5 +1,5 @@
 # cprofiler
-Command line utility and class module to run single file or files in batch through cProfile and store the data in csv files.
+Command line utility and class module to run single file or files in batch through cProfile and store the data in CSV files, one per file, with a time stamp YYYY-MM-DD-HH-MM-SS.csv at the end, suitable for parsing and importing the data in each CSV into a time series data set for performance testing data analytics and machine learning. 
 
         cprofile_to_csv.py
 
@@ -47,8 +47,5 @@ Command line utility and class module to run single file or files in batch throu
 
 Dependencies:
 
-Pythnon 3+
+Python 3+
 
-Potential Usage:
-
-A subset of the dictonary, for example, can be loaded into a Pandas or Apache Spark DataFrame for analysis, visualization and reporting.
