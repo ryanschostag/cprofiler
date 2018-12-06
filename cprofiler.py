@@ -74,7 +74,7 @@ class PyProfiler:
         return """
         {0}
         
-        Extract performance data from functions in a Python scripts. Does not work on modules alone
+        Extract performance data from functions in a Python scripts.
         
         Note that invalid arguments are ignored.
         
@@ -830,7 +830,7 @@ be specified.')
         return """
         {0}
         
-        Extract performance data from functions in a Python scripts. Does not work on modules alone
+        Extract performance data from functions in a Python scripts. 
         
         Note that invalid arguments are ignored.
         
