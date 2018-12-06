@@ -1,5 +1,5 @@
 """
-cprofile_to_csv.py
+cprofiler.py
 
 Classes:
 
@@ -66,6 +66,8 @@ class PyProfiler:
         super(PyProfiler, self).__init__()
         self.verbose = False
         self.separator = '\\' if platform == 'win32' else '/'
+        self.switches = ('-w', '--working-dir', '-r', '--recurse', '-h', '--help', '-d',
+                         '--directory', '-v', '--verbose', '-f', '--file')
 
     def _help_message(self):
         # pylint: disable=anomalous-backslash-in-string
@@ -342,6 +344,27 @@ analysis on them.
                 '_args_or_argv(args): <list> or <sys.argv> cannot be empty.'
             )
 
+    def _check_for_other_arg(self, arg_list, base_arg_1, base_arg_2, verbose=False):
+        # Checks if there is another switch in the arg_list
+        # If so, it returns the help settings
+
+        if verbose:
+            print('Enter _check_for_other_arg()')
+
+        if base_arg_1 in arg_list or base_arg_2 in arg_list:
+            other_arg = []
+            for position, switch in enumerate(self.switches):
+                if switch == base_arg_1 or switch == base_arg_2:
+                    continue
+                elif switch in arg_list:
+                    other_arg.append(True)
+            if True not in other_arg:
+                if verbose:
+                    print('Verbose: Invalid setting: "{}" or "{}" requires another switch'.format(
+                        base_arg_1, base_arg_2))
+                    print('Verbose: Exit _check_for_other_arg()')
+                return self._reset_settings_for_help()
+
     def _arg_parser(self, arg_list=None, flag=None, verbose=False):
         # pylint: disable=too-many-branches
         """
@@ -353,32 +376,29 @@ analysis on them.
         """
 
         if verbose:
-            print('Verbose: Enter test_arg_parser()')
+            print('Verbose: Enter _arg_parser()')
 
         if not isinstance(arg_list, list):
-            raise TypeError('test_arg_parser() requires a list')
+            raise TypeError('_arg_parser() requires a list')
 
         if not isinstance(flag, str):
             raise TypeError(
-                'test_arg_parser(flag): Expected <string>. Got {0} instead.'.format(type(flag))
+                '_arg_parser(flag): Expected <string>. Got {0} instead.'.format(type(flag))
             )
 
         if flag not in ('argv', 'args'):
             raise ValueError(
-                'test_arg_parser(flag): Expected "args" or "argv". Got {} instead'.format(flag)
+                '_arg_parser(flag): Expected "args" or "argv". Got {} instead'.format(flag)
             )
-
-        switches = ('-w', '--working-dir', '-r', '--recurse', '-h', '--help', '-d', '--directory',
-                    '-v', '--verbose', '-f', '--file')
 
         args_dict = self.defaults()
 
         for index, item in enumerate(arg_list):
-            if item.lower() in switches:
+            if item.lower() in self.switches:
                 arg_list[index] = item.lower()
 
         valid = []
-        for item in switches:
+        for item in self.switches:
             if item not in arg_list:
                 valid.append(False)
             else:
@@ -386,48 +406,43 @@ analysis on them.
 
         if True not in valid:
             if verbose:
-                print('Verbose: Exit test_arg_parser()')
-            raise ValueError('test_arg_parser(arg_list): No valid arguments detected')
+                print('Verbose: Exit _arg_parser()')
+            raise ValueError('_arg_parser(arg_list): No valid arguments detected')
         elif verbose:
-            print('Verbose: test_arg_parser(arg_list): Contains valid arguments')
+            print('Verbose: _arg_parser(arg_list): Contains valid arguments')
 
         # Sanitize argument list to prevent process when invalid settings are detected
         if '-h' in arg_list or '--help' in arg_list:
             if verbose:
                 print('Verbose: Help Detected: Returning settings with only Help set to True')
-                print('Verbose: Exit test_arg_parser()')
-            return self._reset_settings_for_help()
+                print('Verbose: Exit _arg_parser()')
+            return self.test_reset_settings_for_help()
 
         if '-r' in arg_list and '-w' in arg_list:
             if verbose:
                 print('Verbose: Invalid settings: "-w" and "-r" cannot be together')
-                print('Verbose: Exit test_arg_parser()')
-            return self._reset_settings_for_help()
+                print('Verbose: Exit _arg_parser()')
+            return self.test_reset_settings_for_help()
 
         if '--recurse' in arg_list and '-w' in arg_list:
             if verbose:
                 print('Verbose: Invalid settings: "-w" and "--recurse" cannot be together')
-                print('Verbose: Exit test_arg_parser()')
-            return self._reset_settings_for_help()
+                print('Verbose: Exit _arg_parser()')
+            return self.test_reset_settings_for_help()
 
         if '-r' in arg_list and '--working-dir' in arg_list:
             if verbose:
                 print('Verbose: Invalid settings: "--working-dir" and "-r" cannot be together')
-                print('Verbose: Exit test_arg_parser()')
+                print('Verbose: Exit _arg_parser()')
+            return self.test_reset_settings_for_help()
+
+        if self._reset_settings_for_help() == self._check_for_other_arg(
+                arg_list=arg_list, base_arg_1='-v', base_arg_2='--verbose',  verbose=verbose):
             return self._reset_settings_for_help()
 
-        if '-v' in arg_list or '--verbose' in arg_list:
-            other_arg = []
-            for position, switch in enumerate(switches):
-                if switch == '-v' or switch == '--verbose':
-                    continue
-                elif switch in arg_list:
-                    other_arg.append(True)
-            if True not in other_arg:
-                if verbose:
-                    print('Verbose: Invalid settings: "-v" or "--verbose" requires another switch')
-                    print('Verbose: Exit test_arg_parser()')
-                return self._reset_settings_for_help()
+        if self._reset_settings_for_help() == self._check_for_other_arg(
+                arg_list=arg_list, base_arg_1='-d', base_arg_2='--directory',  verbose=verbose):
+            return self._reset_settings_for_help()
 
         # pylint: disable=consider-iterating-dictionary
         for key in args_dict.keys():
@@ -483,7 +498,7 @@ analysis on them.
                     if verbose:
                         print('Verbose: --recurse found')
                     args_dict[key] = True
-                    args_dict['--recurse'] = True
+                    args_dict['-r'] = True
                 elif key == '-v':
                     if verbose:
                         print('Verbose: -v found')
@@ -496,7 +511,7 @@ analysis on them.
                     args_dict['-v'] = True
 
         if verbose:
-            print('Verbose: Exit test_arg_parser()')
+            print('Verbose: Exit _arg_parser()')
 
         return args_dict
 
@@ -1361,6 +1376,27 @@ of.Pr\ofiler' objects}", b'', b'', b''], file_name
                 '_args_or_argv(args): <list> or <sys.argv> cannot be empty.'
             )
 
+    def test_check_for_other_arg(self, arg_list, base_arg_1, base_arg_2, verbose=False):
+        # Checks if there is another switch in the arg_list
+        # If so, it returns the help settings
+
+        if verbose:
+            print('Enter test_check_for_other_arg()')
+
+        if base_arg_1 in arg_list or base_arg_2 in arg_list:
+            other_arg = []
+            for position, switch in enumerate(self.switches):
+                if switch == base_arg_1 or switch == base_arg_2:
+                    continue
+                elif switch in arg_list:
+                    other_arg.append(True)
+            if True not in other_arg:
+                if verbose:
+                    print('Verbose: Invalid setting: "{}" or "{}" requires another switch'.format(
+                        base_arg_1, base_arg_2))
+                    print('Verbose: Exit test_check_for_other_arg()')
+                return self.test_reset_settings_for_help()
+
     def test_arg_parser(self, arg_list=None, flag=None, verbose=False):
         # pylint: disable=too-many-branches
         """
@@ -1387,17 +1423,14 @@ of.Pr\ofiler' objects}", b'', b'', b''], file_name
                 'test_arg_parser(flag): Expected "args" or "argv". Got {} instead'.format(flag)
             )
 
-        switches = ('-w', '--working-dir', '-r', '--recurse', '-h', '--help', '-d', '--directory',
-                    '-v', '--verbose', '-f', '--file')
-
         args_dict = self.defaults()
 
         for index, item in enumerate(arg_list):
-            if item.lower() in switches:
+            if item.lower() in self.switches:
                 arg_list[index] = item.lower()
 
         valid = []
-        for item in switches:
+        for item in self.switches:
             if item not in arg_list:
                 valid.append(False)
             else:
@@ -1435,18 +1468,13 @@ of.Pr\ofiler' objects}", b'', b'', b''], file_name
                 print('Verbose: Exit test_arg_parser()')
             return self.test_reset_settings_for_help()
 
-        if '-v' in arg_list or '--verbose' in arg_list:
-            other_arg = []
-            for position, switch in enumerate(switches):
-                if switch == '-v' or switch == '--verbose':
-                    continue
-                elif switch in arg_list:
-                    other_arg.append(True)
-            if True not in other_arg:
-                if verbose:
-                    print('Verbose: Invalid settings: "-v" or "--verbose" requires another switch')
-                    print('Verbose: Exit test_arg_parser()')
-                return self.test_reset_settings_for_help()
+        if self.test_reset_settings_for_help() == self.test_check_for_other_arg(
+                arg_list=arg_list, base_arg_1='-v', base_arg_2='--verbose',  verbose=verbose):
+            return self.test_reset_settings_for_help()
+
+        if self.test_reset_settings_for_help() == self.test_check_for_other_arg(
+                arg_list=arg_list, base_arg_1='-d', base_arg_2='--directory',  verbose=verbose):
+            return self.test_reset_settings_for_help()
 
         # pylint: disable=consider-iterating-dictionary
         for key in args_dict.keys():
@@ -1502,7 +1530,7 @@ of.Pr\ofiler' objects}", b'', b'', b''], file_name
                     if verbose:
                         print('Verbose: --recurse found')
                     args_dict[key] = True
-                    args_dict['--recurse'] = True
+                    args_dict['-r'] = True
                 elif key == '-v':
                     if verbose:
                         print('Verbose: -v found')
