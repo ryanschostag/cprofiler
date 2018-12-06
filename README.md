@@ -1,7 +1,7 @@
 # cprofiler
 Command line utility and class module to run single file or files in batch through cProfile and store the data in CSV files, one per file, with a time stamp YYYY-MM-DD-HH-MM-SS.csv at the end, suitable for parsing and importing the data in each CSV into a time series data set for performance testing data analytics and machine learning. 
 
-        cprofile_to_csv.py
+        cprofiler.py
 
         Extract performance data from functions in a Python scripts. Does not work on modules alone
 
@@ -18,30 +18,30 @@ Command line utility and class module to run single file or files in batch throu
 
         Examples:
 
-        python cprofile_to_csv.py
+        python cprofiler.py
 
             Searches for Python files from the working directory. Runs performance analysis on them.
 
-        python cprofile_to_csv.py -r
+        python cprofiler.py -r
 
             Searches for Python files from the working directory all subfolders. Runs performance analysis on them.
 
             Also:
 
-                python cprofile_to_csv.py --recursive
+                python cprofiler.py --recursive
 
-        Windows:    python cprofile_to_csv.py -d "\temp\py" -r -v
-        UNIX:       python cprofile_to_csv.py -d "/tmp/py" -r -v
+        Windows:    python cprofiler.py -d "\temp\py" -r -v
+        UNIX:       python cprofiler.pyy -d "/tmp/py" -r -v
 
             Starts from directory specified by -d and recurses in verbose mode
 
-        Windows:    python cprofile_to_csv.py --directory="\temp\py" -r -v
-        UNIX:       python cprofile_to_csv.py --directory="/tmp/py" -r -v
+        Windows:    python cprofiler.py --directory="\temp\py" -r -v
+        UNIX:       python cprofiler.py --directory="/tmp/py" -r -v
 
             This does the same as above. --directory=[dir] is the alternative to -d [dir]
 
-        Windows:    python cprofile_to_csv.py -f .\scriptsile_1.py
-        UNIX:       python cprofile_to_csv.py -f ./scripts/file_1.py
+        Windows:    python cprofiler.py -f .\scriptsile_1.py
+        UNIX:       python cprofiler.py -f ./scripts/file_1.py
 
             Profiles a single Python script
 
