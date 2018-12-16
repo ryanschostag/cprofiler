@@ -1674,5 +1674,4 @@ def main():
 
 
 if __name__ == "__main__":
-    # dummy_main()
     main()
